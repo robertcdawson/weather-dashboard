@@ -1,5 +1,5 @@
 import React from 'react';
-import { animate } from 'motion';
+import { motion } from 'framer-motion';
 import { cn } from '../../utils/cn';
 
 interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,42 +16,6 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   onClick,
   ...props
 }) => {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const button = e.currentTarget;
-
-    // Scale down animation
-    animate(
-      button,
-      { scale: 0.95 },
-      { duration: 0.1, easing: 'ease-out' }
-    );
-
-    // Scale back up
-    animate(
-      button,
-      { scale: 1 },
-      { duration: 0.15, easing: 'ease-out' }
-    );
-
-    onClick?.(e);
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(
-      e.currentTarget,
-      { y: -2 },
-      { duration: 0.2, easing: 'ease-out' }
-    );
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    animate(
-      e.currentTarget,
-      { y: 0 },
-      { duration: 0.2, easing: 'ease-out' }
-    );
-  };
-
   const baseStyles = "rounded-lg transition-colors duration-200 font-medium";
 
   const variants = {
@@ -67,14 +31,15 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   };
 
   return (
-    <button
+    <motion.button
       className={cn(baseStyles, variants[variant], sizes[size], className)}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ duration: 0.2 }}
       {...props}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }; 
