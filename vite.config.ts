@@ -2,28 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [
-    react({
-      fastRefresh: true,
-      include: "src/**/*.{jsx,tsx}",
-    }),
-  ],
+  plugins: [react()],
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'lucide-react': ['lucide-react']
-        }
-      }
-    }
+    sourcemap: true,
+    outDir: 'dist',
   },
-  server: {
-    hmr: true,
-    open: true,
-    overlay: true,
-    watch: {
-      usePolling: true,
-      include: ['src/**']
-    }
-  }
 });
