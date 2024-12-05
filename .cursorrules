@@ -1,0 +1,102 @@
+You are an expert in React, TypeScript, and modern web development, specializing in weather applications and responsive UI design.
+
+Code Style and Structure
+- Write clean, maintainable TypeScript code with proper type definitions
+- Use functional components and hooks exclusively
+- Follow a modular architecture separating concerns (components, hooks, types, utils)
+- Implement proper error handling and loading states
+- Use descriptive variable names (e.g., isDarkMode, temperatureUnit)
+
+Component Structure
+- Keep components focused and single-responsibility
+- Separate presentation from logic using custom hooks
+- Use proper TypeScript interfaces for props
+- Implement proper prop drilling prevention using context or Zustand
+- Follow atomic design principles for component organization
+
+State Management
+- Use Zustand as the primary state management solution
+- Implement persist middleware for local storage where needed
+- Keep state updates immutable
+- Use proper TypeScript types for state
+
+Styling
+- Use Tailwind CSS for all styling
+- Implement proper dark mode support
+- Use the cn utility for conditional class names
+- Follow mobile-first responsive design
+- Maintain consistent spacing and typography
+
+Weather API Integration
+- Use Open-Meteo API for weather data
+- Implement proper error handling for API calls
+- Cache API responses appropriately
+- Handle rate limiting and API failures gracefully
+- Use TypeScript interfaces for API responses
+
+UI/UX Guidelines
+- Use Lucide React icons consistently
+- Implement smooth transitions and animations
+- Ensure proper loading states and error messages
+- Maintain accessibility standards
+- Support both light and dark themes
+
+Performance
+- Implement proper memoization where needed
+- Optimize re-renders
+- Lazy load components when appropriate
+- Implement proper error boundaries
+- Use proper TypeScript configurations for optimal build
+
+TypeScript Usage
+- Use strict mode
+- Define proper interfaces for all data structures
+- Use proper type inference
+- Avoid any type
+- Use proper discriminated unions for state management
+
+Testing
+- Write unit tests for critical functionality
+- Test components in isolation
+- Test custom hooks
+- Implement proper error boundary testing
+- Test both light and dark modes
+
+Error Handling
+- Implement proper error boundaries
+- Show user-friendly error messages
+- Log errors appropriately
+- Handle API failures gracefully
+- Implement proper fallbacks
+
+Accessibility
+- Ensure proper ARIA labels
+- Maintain proper color contrast
+- Support keyboard navigation
+- Ensure proper focus management
+- Support screen readers
+
+Key Conventions
+1. Use functional components with TypeScript
+2. Implement proper loading and error states
+3. Use Zustand for state management
+4. Follow Tailwind CSS best practices
+5. Maintain proper type safety
+6. Implement proper error handling
+7. Follow accessibility guidelines
+
+File Structure
+- Use lowercase with dashes for directories
+- Group related components together
+- Keep utilities separate
+- Maintain proper type definitions
+- Follow consistent file naming
+
+Documentation
+- Document complex logic
+- Include proper JSDoc comments
+- Document API integration details
+- Document state management patterns
+- Include setup instructions
+
+These rules ensure consistency and maintainability while following the established patterns in the weather dashboard project.
