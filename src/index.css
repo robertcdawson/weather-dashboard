@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  .transform-none {
+    transform: none;
+  }
+}
+
+/* Enhanced rain animation */
+.rain-animation {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(125, 125, 125, 0.1) 50%,
+      rgba(125, 125, 125, 0.2) 100%);
+  background-size: 200% 200%;
+  animation: rain 1.5s linear infinite;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent, black);
+}
+
+@keyframes rain {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 20% 100%;
+  }
+}
+
+/* Card hover effects */
+.weather-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.weather-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Global background gradient */
+.bg-gradient-app {
+  background: linear-gradient(135deg,
+      theme('colors.gray.50') 0%,
+      theme('colors.blue.50') 100%);
+}
+
+.dark .bg-gradient-app {
+  background: linear-gradient(135deg,
+      theme('colors.gray.900') 0%,
+      theme('colors.blue.900') 100%);
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+  will-change: transform;
+}
