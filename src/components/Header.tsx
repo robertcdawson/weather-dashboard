@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Star, Settings, GitCompare } from 'lucide-react';
+import { Sun, Moon, Star, Settings, GitCompare, Map } from 'lucide-react';
 import { useWeatherStore } from '../store/useWeatherStore';
 import { cn } from '../utils/cn';
 import { SettingsModal } from './SettingsModal';
+import { WeatherMapModal } from './weather/WeatherMapModal';
+import { WeatherData } from '../types/weather';
 
 interface HeaderProps {
   isDarkMode: boolean | null;
   onDarkModeToggle: () => void;
   showOnlyFavorites: boolean;
   onShowOnlyFavoritesToggle: () => void;
+  weatherData?: Record<string, WeatherData>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,11 +19,16 @@ export const Header: React.FC<HeaderProps> = ({
   onDarkModeToggle,
   showOnlyFavorites,
   onShowOnlyFavoritesToggle,
+  weatherData = {},
 }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const temperatureUnit = useWeatherStore((state) => state.temperatureUnit);
+  const toggleTemperatureUnit = useWeatherStore((state) => state.toggleTemperatureUnit);
   const comparisonMode = useWeatherStore((state) => state.comparisonMode);
   const toggleComparisonMode = useWeatherStore((state) => state.toggleComparisonMode);
+  
+  const locations = Object.values(weatherData).filter(Boolean);
 
   return (
     <>
@@ -29,6 +37,15 @@ export const Header: React.FC<HeaderProps> = ({
           Weather Dashboard
         </h1>
         <div className="flex items-center gap-2 sm:gap-4">
+          <button
+            onClick={() => setShowMap(true)}
+            className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400 transition-colors"
+            aria-label="Weather Map"
+            title="Weather Map"
+            disabled={locations.length === 0}
+          >
+            <Map className="w-5 h-5" />
+          </button>
           <button
             onClick={toggleComparisonMode}
             className={cn(
@@ -61,8 +78,10 @@ export const Header: React.FC<HeaderProps> = ({
             />
           </button>
           <button
-            className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-sm font-medium"
-            title="Temperature unit"
+            onClick={toggleTemperatureUnit}
+            className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700/50 dark:hover:bg-gray-600/50 text-gray-600 dark:text-gray-400 text-sm font-medium transition-colors cursor-pointer"
+            title={`Switch to ${temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius'}`}
+            aria-label={`Switch to ${temperatureUnit === 'C' ? 'Fahrenheit' : 'Celsius'}`}
           >
             °{temperatureUnit}
           </button>
@@ -86,6 +105,9 @@ export const Header: React.FC<HeaderProps> = ({
       </header>
 
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showMap && locations.length > 0 && (
+        <WeatherMapModal locations={locations} onClose={() => setShowMap(false)} />
+      )}
     </>
   );
 };

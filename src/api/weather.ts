@@ -333,7 +333,7 @@ export async function fetchWeatherData(location: Location, temperatureUnit: stri
 
     const [weatherResponse, airQuality] = await Promise.all([
       fetchWithRateLimit(
-        `${WEATHER_API_URL}?latitude=${location.lat}&longitude=${location.lon}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,is_day,relative_humidity_2m,surface_pressure,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_gusts_10m_max,sunrise,sunset,uv_index_max&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m&timezone=auto&start_date=${startDateStr}&end_date=${endDateStr}&forecast_hours=24`,
+        `${WEATHER_API_URL}?latitude=${location.lat}&longitude=${location.lon}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,is_day,relative_humidity_2m,surface_pressure,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_gusts_10m_max,sunrise,sunset,uv_index_max&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m&timezone=auto&start_date=${startDateStr}&end_date=${endDateStr}`,
         weatherRateLimiter
       ),
       fetchAirQuality(location.lat, location.lon)

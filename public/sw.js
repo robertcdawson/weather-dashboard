@@ -2,7 +2,7 @@ const CACHE_NAME = 'weather-dashboard-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/vite.svg',
+  '/weather-icon.svg',
   '/manifest.json'
 ];
 
@@ -111,8 +111,8 @@ self.addEventListener('push', (event) => {
   const data = event.data.json();
   const options = {
     body: data.body,
-    icon: '/vite.svg',
-    badge: '/vite.svg',
+    icon: '/weather-icon.svg',
+    badge: '/weather-icon.svg',
     tag: data.tag || 'weather-notification',
     requireInteraction: data.requireInteraction || false,
     data: data.data

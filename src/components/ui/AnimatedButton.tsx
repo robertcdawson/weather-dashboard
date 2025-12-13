@@ -16,7 +16,7 @@ export const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   onClick,
   ...props
 }) => {
-  const baseStyles = "rounded-lg transition-colors duration-200 font-medium";
+  const baseStyles = "rounded-lg transition-colors duration-200 font-medium flex items-center justify-center";
 
   const variants = {
     primary: "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30",

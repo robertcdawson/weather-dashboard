@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Thermometer, Wind, Droplets, RefreshCw, X, Sunrise, Sunset, Sun, Clock, Activity } from 'lucide-react';
+import { Thermometer, Wind, Droplets, RefreshCw, X, Sunrise, Sunset, Sun, Clock, Activity, Calendar, Sparkles } from 'lucide-react';
 import { WeatherData } from '../../types/weather';
 import { useWeatherStore } from '../../store/useWeatherStore';
 import { cn } from '../../utils/cn';
@@ -8,6 +8,7 @@ import { HourlyForecastModal } from './HourlyForecastModal';
 import { getWeatherInsights } from '../../utils/weatherInsights';
 import { WeatherInsightsModal } from './WeatherInsightsModal';
 import { ActivityModal } from './ActivityModal';
+import { HistoricalWeatherModal } from './HistoricalWeatherModal';
 import { AnimatedButton } from '../ui/AnimatedButton';
 
 interface CardBackProps {
@@ -29,6 +30,7 @@ export const CardBack: React.FC<CardBackProps> = ({ data, onRefresh, onRemove, c
   const [showHourly, setShowHourly] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
   const [showActivity, setShowActivity] = useState(false);
+  const [showHistorical, setShowHistorical] = useState(false);
 
   const getAqiColor = (aqi: number) => {
     if (aqi <= 50) return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-100';
@@ -158,23 +160,33 @@ export const CardBack: React.FC<CardBackProps> = ({ data, onRefresh, onRemove, c
               7-Day
             </AnimatedButton>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <AnimatedButton
               onClick={(e) => { e.stopPropagation(); setShowInsights(true); }}
               variant="secondary"
               size="sm"
-              className="text-xs py-1.5"
+              className="text-xs py-1.5 px-1 whitespace-nowrap"
             >
+              <Sparkles className="w-3 h-3 mr-1.5" />
               Insights
             </AnimatedButton>
             <AnimatedButton
               onClick={(e) => { e.stopPropagation(); setShowActivity(true); }}
               variant="secondary"
               size="sm"
-              className="text-xs py-1.5"
+              className="text-xs py-1.5 px-1 whitespace-nowrap"
             >
-              <Activity className="w-3 h-3 mr-1" />
+              <Activity className="w-3 h-3 mr-1.5" />
               Activities
+            </AnimatedButton>
+            <AnimatedButton
+              onClick={(e) => { e.stopPropagation(); setShowHistorical(true); }}
+              variant="secondary"
+              size="sm"
+              className="text-xs py-1.5 px-1 whitespace-nowrap"
+            >
+              <Calendar className="w-3 h-3 mr-1.5" />
+              History
             </AnimatedButton>
           </div>
           <div className="flex gap-2 pt-1">
@@ -236,6 +248,13 @@ export const CardBack: React.FC<CardBackProps> = ({ data, onRefresh, onRemove, c
           <ActivityModal
             data={data}
             onClose={() => setShowActivity(false)}
+          />
+        )}
+
+        {showHistorical && (
+          <HistoricalWeatherModal
+            data={data}
+            onClose={() => setShowHistorical(false)}
           />
         )}
       </div>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Search, MapPin } from 'lucide-react';
+import { Search, MapPin, Loader2 } from 'lucide-react';
 import { Location } from '../types/weather';
 import { searchLocations } from '../api/geocoding';
 import { cn } from '../utils/cn';
 import { useWeatherStore } from '../store/useWeatherStore';
 import { buttonStyles } from "../utils/styles";
+import { useLocationSearch } from '../hooks/useLocationSearch';
 
 interface LocationSearchProps {
   onLocationSelect: (location: Location) => void;
@@ -25,10 +26,18 @@ const areCoordinatesClose = (lat1: number, lon1: number, lat2: number, lon2: num
 };
 
 export const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [suggestions, setSuggestions] = useState<Location[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    searchTerm,
+    suggestions,
+    selectedIndex,
+    isLoading: isSearching,
+    setSearchTerm,
+    getSuggestions,
+    handleKeyDown: hookHandleKeyDown,
+    clearSuggestions
+  } = useLocationSearch();
+
+  const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const locations = useWeatherStore((state) => state.locations);
 
@@ -40,8 +49,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect
 
     // Always clear the search UI
     setSearchTerm('');
-    setSuggestions([]);
-    setSelectedIndex(-1);
+    clearSuggestions();
 
     if (exists) {
       setError('This location is already added');
@@ -56,44 +64,13 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect
     handleLocationAdd(location);
   };
 
-  const getSuggestions = async (query: string) => {
-    if (query.trim().length < 2) {
-      setSuggestions([]);
-      return;
-    }
-
-    try {
-      const locations = await searchLocations(query);
-      setSuggestions(locations);
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-      setSuggestions([]);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (suggestions.length === 0) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
-    } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      e.preventDefault();
-      const selected = suggestions[selectedIndex];
-      if (selected) {
-        handleSuggestionClick(selected);
-      }
-    } else if (e.key === 'Escape') {
-      setSuggestions([]);
-      setSelectedIndex(-1);
-    }
+  // Pass handleLocationAdd to hook's handleKeyDown via wrapper
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    hookHandleKeyDown(e, handleLocationAdd);
   };
 
   const handleCurrentLocation = async () => {
-    setIsLoading(true);
+    setIsLocating(true);
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -110,7 +87,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect
       setError('Unable to get current location');
       setTimeout(() => setError(null), 3000);
     } finally {
-      setIsLoading(false);
+      setIsLocating(false);
     }
   };
 
@@ -127,14 +104,19 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect
               getSuggestions(e.target.value);
             }}
             onKeyDown={handleKeyDown}
-            className="w-full px-6 py-3 pl-12 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-lg transition-all duration-300"
+            className="w-full px-6 py-3 pl-12 pr-10 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-lg transition-all duration-300"
           />
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+          {isSearching && (
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+              <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+            </div>
+          )}
         </div>
 
         <button
           onClick={handleCurrentLocation}
-          disabled={isLoading}
+          disabled={isLocating}
           className={cn(
             buttonStyles.base,
             buttonStyles.hover,
@@ -145,7 +127,7 @@ export const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationSelect
           aria-label="Use current location"
         >
           <MapPin className="w-5 h-5" />
-          {isLoading && <span className="text-sm font-medium">Loading...</span>}
+          {isLocating && <span className="text-sm font-medium">Loading...</span>}
         </button>
       </div>
 

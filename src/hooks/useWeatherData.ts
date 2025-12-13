@@ -1,6 +1,7 @@
 import { useWeatherStore } from '../store/useWeatherStore';
 import { Location, WeatherData } from '../types/weather';
 import { fetchWeatherData } from '../api/weather';
+import { useToastStore } from '../store/useToastStore';
 
 export const useWeatherData = () => {
   const {
@@ -10,6 +11,8 @@ export const useWeatherData = () => {
     removeLocation: removeLocationFromStore,
     updateWeatherData,
   } = useWeatherStore();
+
+  const addToast = useToastStore((state) => state.addToast);
 
   const getWeatherData = async (location: Location) => {
     try {
@@ -31,7 +34,10 @@ export const useWeatherData = () => {
       updateWeatherData(location.id, data);
     } catch (error) {
       console.error('Error fetching weather data:', error);
-      // You might want to show an error message to the user here
+      addToast(
+        `Failed to fetch weather for ${location.city}. Please try again.`,
+        'error'
+      );
     }
   };
 

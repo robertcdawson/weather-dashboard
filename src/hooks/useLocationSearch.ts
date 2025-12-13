@@ -1,30 +1,49 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Location } from '../types/weather';
 import { searchLocations } from '../api/geocoding';
-import debounce from 'lodash/debounce';
 
 export function useLocationSearch() {
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<Location[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isLoading, setIsLoading] = useState(false);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const debouncedSearch = useCallback(
-    debounce(async (query: string) => {
-      if (query.length < 2) {
-        setSuggestions([]);
-        return;
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
+    };
+  }, []);
 
+  const debouncedSearch = useCallback((query: string) => {
+    // Clear any pending debounce
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (query.length < 2) {
+      setSuggestions([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // Set debounce timer
+    debounceTimerRef.current = setTimeout(async () => {
+      setIsLoading(true);
       try {
         const locations = await searchLocations(query);
         setSuggestions(locations);
       } catch (error) {
         console.error('Error fetching locations:', error);
         setSuggestions([]);
+      } finally {
+        setIsLoading(false);
       }
-    }, 300),
-    []
-  );
+    }, 300);
+  }, []);
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
@@ -65,6 +84,7 @@ export function useLocationSearch() {
     searchTerm,
     suggestions,
     selectedIndex,
+    isLoading,
     setSearchTerm,
     getSuggestions: debouncedSearch,
     handleKeyDown,
