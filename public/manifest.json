@@ -1,0 +1,26 @@
+{
+  "name": "Weather Dashboard",
+  "short_name": "Weather",
+  "description": "A beautiful weather dashboard with forecasts, alerts, and activity recommendations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["weather", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Add Location",
+      "url": "/?action=add",
+      "description": "Add a new weather location"
+    }
+  ]
+}

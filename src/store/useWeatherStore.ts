@@ -2,15 +2,23 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { WeatherData, Location } from '../types/weather';
 
+export type WindSpeedUnit = 'kmh' | 'mph' | 'ms' | 'knots';
+export type PressureUnit = 'hPa' | 'inHg' | 'mmHg';
+
 interface WeatherState {
   locations: Location[];
   weatherData: Record<string, WeatherData>;
   temperatureUnit: 'C' | 'F';
+  windSpeedUnit: WindSpeedUnit;
+  pressureUnit: PressureUnit;
   isDarkMode: boolean | null;
   favorites: string[];
   showOnlyFavorites: boolean;
   locationOrder: string[];
   sortByFavorites: boolean;
+  notificationsEnabled: boolean;
+  comparisonMode: boolean;
+  comparisonLocations: string[];
 }
 
 interface WeatherStore extends WeatherState {
@@ -18,6 +26,8 @@ interface WeatherStore extends WeatherState {
   removeLocation: (id: string) => void;
   updateWeatherData: (id: string, data: WeatherData) => void;
   toggleTemperatureUnit: () => void;
+  setWindSpeedUnit: (unit: WindSpeedUnit) => void;
+  setPressureUnit: (unit: PressureUnit) => void;
   toggleDarkMode: () => void;
   toggleShowOnlyFavorites: () => void;
   toggleSortByFavorites: () => void;
@@ -25,6 +35,11 @@ interface WeatherStore extends WeatherState {
   removeFromFavorites: (id: string) => void;
   isFavorite: (id: string) => boolean;
   reorderLocations: (startIndex: number, endIndex: number) => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
+  toggleComparisonMode: () => void;
+  addToComparison: (id: string) => void;
+  removeFromComparison: (id: string) => void;
+  clearComparison: () => void;
 }
 
 export const useWeatherStore = create<WeatherStore>()(
@@ -33,11 +48,16 @@ export const useWeatherStore = create<WeatherStore>()(
       locations: [],
       weatherData: {},
       temperatureUnit: 'F',
+      windSpeedUnit: 'mph',
+      pressureUnit: 'hPa',
       isDarkMode: null,
       favorites: [],
       showOnlyFavorites: false,
       locationOrder: [],
       sortByFavorites: false,
+      notificationsEnabled: false,
+      comparisonMode: false,
+      comparisonLocations: [],
 
       addLocation: (location) =>
         set((state) => {
@@ -68,6 +88,10 @@ export const useWeatherStore = create<WeatherStore>()(
         set((state) => ({
           temperatureUnit: state.temperatureUnit === 'C' ? 'F' : 'C',
         })),
+
+      setWindSpeedUnit: (unit) => set({ windSpeedUnit: unit }),
+
+      setPressureUnit: (unit) => set({ pressureUnit: unit }),
 
       toggleDarkMode: () =>
         set((state) => ({
@@ -105,6 +129,28 @@ export const useWeatherStore = create<WeatherStore>()(
           newOrder.splice(endIndex, 0, removed);
           return { locationOrder: newOrder };
         }),
+
+      setNotificationsEnabled: (enabled) => set({ notificationsEnabled: enabled }),
+
+      toggleComparisonMode: () =>
+        set((state) => ({
+          comparisonMode: !state.comparisonMode,
+          comparisonLocations: state.comparisonMode ? [] : state.comparisonLocations,
+        })),
+
+      addToComparison: (id) =>
+        set((state) => ({
+          comparisonLocations: state.comparisonLocations.length < 3
+            ? [...state.comparisonLocations, id]
+            : state.comparisonLocations,
+        })),
+
+      removeFromComparison: (id) =>
+        set((state) => ({
+          comparisonLocations: state.comparisonLocations.filter((locId) => locId !== id),
+        })),
+
+      clearComparison: () => set({ comparisonLocations: [] }),
     }),
     {
       name: 'weather-storage',

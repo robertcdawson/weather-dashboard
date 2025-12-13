@@ -1,4 +1,4 @@
-import { WeatherData, Location, WeatherAlert, AlertSeverity } from '../types/weather';
+import { WeatherData, Location, WeatherAlert, AlertSeverity, HourlyForecast } from '../types/weather';
 import { weatherRateLimiter, airQualityRateLimiter } from '../utils/rateLimiter';
 
 const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
@@ -14,6 +14,8 @@ interface WeatherResponse {
     is_day: number;
     weather_code: number;
     relative_humidity_2m: number;
+    surface_pressure: number;
+    uv_index: number;
   };
   daily: {
     time: string[];
@@ -22,6 +24,16 @@ interface WeatherResponse {
     weather_code: number[];
     precipitation_probability_max: number[];
     wind_gusts_10m_max: number[];
+    sunrise: string[];
+    sunset: string[];
+    uv_index_max: number[];
+  };
+  hourly: {
+    time: string[];
+    temperature_2m: number[];
+    weather_code: number[];
+    precipitation_probability: number[];
+    wind_speed_10m: number[];
   };
 }
 
@@ -321,7 +333,7 @@ export async function fetchWeatherData(location: Location, temperatureUnit: stri
 
     const [weatherResponse, airQuality] = await Promise.all([
       fetchWithRateLimit(
-        `${WEATHER_API_URL}?latitude=${location.lat}&longitude=${location.lon}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,is_day,relative_humidity_2m&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_gusts_10m_max&timezone=auto&start_date=${startDateStr}&end_date=${endDateStr}`,
+        `${WEATHER_API_URL}?latitude=${location.lat}&longitude=${location.lon}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,is_day,relative_humidity_2m,surface_pressure,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,wind_gusts_10m_max,sunrise,sunset,uv_index_max&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m&timezone=auto&start_date=${startDateStr}&end_date=${endDateStr}&forecast_hours=24`,
         weatherRateLimiter
       ),
       fetchAirQuality(location.lat, location.lon)
@@ -353,7 +365,20 @@ export async function fetchWeatherData(location: Location, temperatureUnit: stri
       minTemp: Math.round(data.daily.temperature_2m_min[index]),
       condition: WMO_CODES[data.daily.weather_code[index]]?.day || 'Clear sky',
       precipitationProbability: data.daily.precipitation_probability_max[index],
-      windGustsMax: Math.round(data.daily.wind_gusts_10m_max[index])
+      windGustsMax: Math.round(data.daily.wind_gusts_10m_max[index]),
+      sunrise: data.daily.sunrise?.[index] || '',
+      sunset: data.daily.sunset?.[index] || '',
+      uvIndexMax: data.daily.uv_index_max?.[index] || 0
+    }));
+
+    // Process hourly forecast (next 24 hours)
+    const hourlyForecast: HourlyForecast[] = (data.hourly?.time || []).slice(0, 24).map((time, index) => ({
+      time,
+      temperature: Math.round(data.hourly.temperature_2m[index]),
+      condition: WMO_CODES[data.hourly.weather_code[index]]?.day || 'Clear sky',
+      precipitationProbability: data.hourly.precipitation_probability?.[index] || 0,
+      windSpeed: Math.round(data.hourly.wind_speed_10m[index]),
+      weatherCode: data.hourly.weather_code[index]
     }));
 
     return {
@@ -367,11 +392,19 @@ export async function fetchWeatherData(location: Location, temperatureUnit: stri
       windSpeed: Math.round(current.wind_speed_10m),
       windGust: Math.round(current.wind_gusts_10m),
       windDirection: getWindDirection(current.wind_direction_10m),
+      windDirectionDegrees: current.wind_direction_10m,
       aqi: airQuality.aqi,
       aqiDescription: airQuality.aqiDescription,
       lat: location.lat,
       lon: location.lon,
-      forecast: forecast,
+      pressure: Math.round(current.surface_pressure),
+      sunrise: data.daily.sunrise?.[0] || '',
+      sunset: data.daily.sunset?.[0] || '',
+      uvIndex: current.uv_index || 0,
+      uvIndexMax: data.daily.uv_index_max?.[0] || 0,
+      isDay: current.is_day === 1,
+      hourlyForecast,
+      forecast,
       humidity: Math.round(current.relative_humidity_2m),
       alerts: severityCheck.alerts,
       hasSevereAlert: severityCheck.isSevere

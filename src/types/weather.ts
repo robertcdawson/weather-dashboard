@@ -17,6 +17,15 @@ export interface WeatherAlert {
   timeContext?: string;
 }
 
+export interface HourlyForecast {
+  time: string;
+  temperature: number;
+  condition: string;
+  precipitationProbability: number;
+  windSpeed: number;
+  weatherCode: number;
+}
+
 export interface WeatherData {
   id: string;
   city: string;
@@ -28,13 +37,21 @@ export interface WeatherData {
   windSpeed: number;
   windGust: number;
   windDirection: string;
+  windDirectionDegrees: number;
   aqi: number;
   aqiDescription: string;
   lat: number;
   lon: number;
   humidity: number;
+  pressure: number;
   alerts: WeatherAlert[];
   hasSevereAlert: boolean;
+  sunrise: string;
+  sunset: string;
+  uvIndex: number;
+  uvIndexMax: number;
+  isDay: boolean;
+  hourlyForecast: HourlyForecast[];
   forecast: Array<{
     date: string;
     maxTemp: number;
@@ -42,6 +59,9 @@ export interface WeatherData {
     condition: string;
     precipitationProbability: number;
     windGustsMax: number;
+    sunrise: string;
+    sunset: string;
+    uvIndexMax: number;
   }>;
 }
 
